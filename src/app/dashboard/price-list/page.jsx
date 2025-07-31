@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import PriceList from '../../components/Dashboard/PriceList';
+import PriceList from '../../components/dashboard/PriceList';
 
 export default function PriceListPage() {
   return (

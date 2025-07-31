@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import CalculationHistory from "../../components/Dashboard/CalculationHistory";
+import CalculationHistory from "../../components/dashboard/CalculationHistory";
 
 export default function HistoryPage() {
   return (

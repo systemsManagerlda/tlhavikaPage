@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import SolarPanelCalculator from "../../components/Dashboard/SolarPanelCalculator";
+import SolarPanelCalculator from "../../components/dashboard/SolarPanelCalculator";
 
 
 export default function SolarPanelsPage() {

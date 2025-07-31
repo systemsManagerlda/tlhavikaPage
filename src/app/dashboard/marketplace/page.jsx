@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import Marketplace from '../../components/Dashboard/Marketplace';
+import Marketplace from '../../components/dashboard/Marketplace';
 
 export default function MarketplacePage() {
   return (
