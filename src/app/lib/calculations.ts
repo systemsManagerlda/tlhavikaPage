@@ -1,3 +1,4 @@
+import { db } from './db'; 
 export function calculatePump(formData) {
   // Cálculos reais devem ser implementados com fórmulas específicas
   const { wellDepth, tankHeight, pumpDistance, waterNeeded } = formData;
@@ -37,4 +38,25 @@ export function calculateSolarPanels(formData) {
     batteryRecommendation: isHybrid ? 'Não necessário' : 'Banco de baterias 48V 200Ah',
     notes: `Sistema dimensionado para ${city} considerando ${pumpPower}W de potência necessária.`
   };
+}
+
+export async function saveCalculation({
+  userId,
+  type,
+  data,
+  result,
+}: {
+  userId: string;
+  type: string;
+  data: any;
+  result: any;
+}) {
+  return db.calculation.create({
+    data: {
+      userId,
+      type,
+      data: JSON.stringify(data),
+      result: JSON.stringify(result),
+    },
+  });
 }

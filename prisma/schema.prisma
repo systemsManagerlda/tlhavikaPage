@@ -12,3 +12,12 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Calculation {
+  id Int @id @default(autoincrement())
+  userId    String
+  type      String
+  data      String
+  result    String
+  createdAt DateTime @default(now())
+}

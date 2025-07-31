@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { calculatePump } from '../../lib/calculations';
-import { saveCalculation } from '../../api/calculations/route';
 import CalculationResultModal from '../../components/ui/CalculationResultModal';
 
 export default function PumpCalculator() {
@@ -43,11 +42,6 @@ export default function PumpCalculator() {
       setIsModalOpen(true);
       
       // Salvar no banco de dados
-      await saveCalculation({
-        type: 'pump',
-        data: formData,
-        result: calculationResult
-      });
       
     } catch (error) {
       console.error('Erro no cálculo:', error);
