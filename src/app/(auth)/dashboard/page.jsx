@@ -2,6 +2,7 @@ import { protectRoute } from "../../lib/auth";
 import Link from "next/link";
 import Footer from "../../components/layout/Footer";
 import DashboardNavbar from "../../components/layout/Navbar";
+import ChatbotWidget from '../../components/chatbot/ChatbotWidget';
 
 export default async function DashboardPage() {
   const session = await protectRoute();
@@ -60,6 +61,7 @@ export default async function DashboardPage() {
             ))}
           </div>
         </div>
+        <ChatbotWidget />
       </main>
       <Footer />
     </>
