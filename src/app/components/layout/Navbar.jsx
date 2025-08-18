@@ -13,6 +13,7 @@ const navItems = [
   { name: "Tutoriais", href: "/dashboard/tutorials" },
   { name: "Lista de Preços", href: "/dashboard/price-list" },
   { name: "Marketplace", href: "/dashboard/marketplace" },
+  { name: "Gestão", href: "/dashboard/gestao" },
 ];
 
 export default function DashboardNavbar() {

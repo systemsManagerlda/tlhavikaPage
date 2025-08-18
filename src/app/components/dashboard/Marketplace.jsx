@@ -5,7 +5,7 @@ import ProductCard from '../../components/ui/ProductCard';
 
 export default function Marketplace() {
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
