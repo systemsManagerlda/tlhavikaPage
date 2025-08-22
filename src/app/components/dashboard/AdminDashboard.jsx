@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -34,6 +33,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({});
   const [recentActivity, setRecentActivity] = useState([]);
   const [activeTab, setActiveTab] = useState("products");
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   // Estado para o formulário de produto
   const [productForm, setProductForm] = useState({
@@ -43,6 +43,8 @@ export default function AdminDashboard() {
     image: "",
     category: "",
     stock: "",
+    gallery: [],
+    technicalSpecs: "",
   });
 
   useEffect(() => {
@@ -50,7 +52,6 @@ export default function AdminDashboard() {
       try {
         const response = await fetch("/api/check-admin");
         const data = await response.json();
-
         if (!data.isAdmin) {
           router.push("/dashboard/gestao");
         }
@@ -96,6 +97,46 @@ export default function AdminDashboard() {
     }));
   };
 
+  const handleGalleryImagesChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploadingImages(true);
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("gallery", file);
+      });
+
+      const response = await fetch("/api/upload/gallery", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setProductForm((prev) => ({
+          ...prev,
+          gallery: [...prev.gallery, ...result.urls],
+        }));
+      }
+    } catch (error) {
+      console.error("Error uploading gallery images:", error);
+      alert("Erro ao fazer upload das imagens");
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const removeGalleryImage = (index) => {
+    setProductForm((prev) => ({
+      ...prev,
+      gallery: prev.gallery.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmitProduct = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -104,7 +145,6 @@ export default function AdminDashboard() {
       const url = editingProduct
         ? `/api/products/${editingProduct.id}`
         : "/api/products";
-
       const method = editingProduct ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -143,6 +183,8 @@ export default function AdminDashboard() {
         image: "",
         category: "",
         stock: "",
+        gallery: [],
+        technicalSpecs: "",
       });
       setEditingProduct(null);
       setShowProductForm(false);
@@ -189,6 +231,8 @@ export default function AdminDashboard() {
       image: product.image,
       category: product.category,
       stock: product.stock || "",
+      gallery: product.gallery || [],
+      technicalSpecs: product.technicalSpecs || "",
     });
     setShowProductForm(true);
   };
@@ -575,6 +619,8 @@ export default function AdminDashboard() {
                         image: "",
                         category: "",
                         stock: "",
+                        gallery: [],
+                        technicalSpecs: "",
                       });
                       setShowProductForm(true);
                     }}
@@ -594,6 +640,7 @@ export default function AdminDashboard() {
                     </h4>
                     <form onSubmit={handleSubmitProduct}>
                       <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        {/* Campos existentes permanecem iguais */}
                         <div className="sm:col-span-3">
                           <label
                             htmlFor="name"
@@ -665,7 +712,7 @@ export default function AdminDashboard() {
                             htmlFor="image"
                             className="block text-sm font-medium text-gray-700"
                           >
-                            URL da Imagem
+                            URL da Imagem Principal
                           </label>
                           <div className="mt-1">
                             <input
@@ -687,6 +734,81 @@ export default function AdminDashboard() {
                               />
                             </div>
                           )}
+                        </div>
+
+                        {/* Nova seção para Galeria de Imagens */}
+                        <div className="sm:col-span-6">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Galeria de Imagens
+                          </label>
+                          <div className="mt-1">
+                            <input
+                              type="file"
+                              multiple
+                              accept="image/*"
+                              onChange={handleGalleryImagesChange}
+                              disabled={uploadingImages}
+                              className="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                            />
+                          </div>
+                          {uploadingImages && (
+                            <div className="mt-2 text-sm text-gray-500">
+                              Fazendo upload das imagens...
+                            </div>
+                          )}
+
+                          {/* Preview da galeria */}
+                          {productForm.gallery.length > 0 && (
+                            <div className="mt-4">
+                              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                                Imagens da Galeria:
+                              </h4>
+                              <div className="grid grid-cols-4 gap-2">
+                                {productForm.gallery.map((imgUrl, index) => (
+                                  <div key={index} className="relative">
+                                    <img
+                                      src={imgUrl}
+                                      alt={`Gallery ${index}`}
+                                      className="h-20 w-20 object-cover rounded"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => removeGalleryImage(index)}
+                                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Nova seção para Ficha Técnica */}
+                        <div className="sm:col-span-6">
+                          <label
+                            htmlFor="technicalSpecs"
+                            className="block text-sm font-medium text-gray-700"
+                          >
+                            Ficha Técnica (JSON)
+                          </label>
+                          <div className="mt-1">
+                            <textarea
+                              id="technicalSpecs"
+                              name="technicalSpecs"
+                              rows={6}
+                              value={productForm.technicalSpecs}
+                              onChange={handleProductFormChange}
+                              placeholder='{"marca": "Exemplo", "potencia": "100W", "tensão": "12V"}'
+                              className="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md font-mono text-sm"
+                            />
+                          </div>
+                          <p className="mt-1 text-sm text-gray-500">
+                            Insira os dados técnicos em formato JSON. Exemplo:{" "}
+                            {"{"}"marca": "SolarX", "potencia": "100W",
+                            "tensão": "12V"{"}"}
+                          </p>
                         </div>
 
                         <div className="sm:col-span-3">
@@ -932,6 +1054,12 @@ export default function AdminDashboard() {
                           scope="col"
                           className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
+                          Galeria
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           Ações
                         </th>
                       </tr>
@@ -976,6 +1104,12 @@ export default function AdminDashboard() {
                               }`}
                             >
                               {product.stock || 0}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="text-sm text-gray-900">
+                              {product.gallery ? product.gallery.length : 0}{" "}
+                              imagens
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
