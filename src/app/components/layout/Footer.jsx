@@ -5,6 +5,7 @@ import {
   FaInstagram,
   FaLinkedin,
   FaYoutube,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
 
 export default function Footer() {
@@ -13,7 +14,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Sobre a Empresa */}
-          <div className="lg:col-span-2">
+          <div>
             <h3 className="text-xl font-bold mb-4 text-green-400">Tlhavika</h3>
             <p className="text-gray-300 mb-4">
               A Tlhavika é uma empresa moçambicana dedicada à promoção de
@@ -112,14 +113,12 @@ export default function Footer() {
             </h4>
             <address className="not-italic text-gray-300 space-y-2">
               <p>Av. Moçambique Maputo, Mozambique</p>
-              {/* <p>Solar City, SC 88000-000</p>
-              <p>Brasil</p> */}
               <p>
                 <a
-                  href="tel:+554899999999"
+                  href="tel:+258871191481"
                   className="hover:text-green-400 transition-colors"
                 >
-                  +258 86 551 7841
+                  +258 87 119 1481
                 </a>
               </p>
               <p>
@@ -133,12 +132,38 @@ export default function Footer() {
             </address>
           </div>
 
-          {/* Newsletter */}
-          <div className="lg:col-span-2">
-            <h4 className="text-lg font-semibold mb-4 text-green-400">
+          {/* Mapa */}
+          <div>
+            <h4 className="text-lg font-semibold mb-4 text-green-400 flex items-center">
+              <FaMapMarkerAlt className="mr-2" />
+              Nossa Localização
+            </h4>
+            <div className="rounded-lg overflow-hidden shadow-lg h-48">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1794.9862791336923!2d32.5659797596717!3d-25.870380567479575!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1ee69baa03aa39d1%3A0x77a65370acc6cce!2sTlhavilha!5e0!3m2!1spt-PT!2smz!4v1755828458361!5m2!1spt-PT!2smz"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Localização da Tlhavilha em Maputo, Mozambique"
+                className="rounded-lg"
+              ></iframe>
+            </div>
+            <p className="text-sm text-gray-400 mt-2">
+              Av. Moçambique, Maputo, Mozambique
+            </p>
+          </div>
+        </div>
+
+        {/* Newsletter */}
+        <div className="mt-8 pt-8 border-t border-gray-800">
+          <div className="max-w-xl mx-auto">
+            <h4 className="text-lg font-semibold mb-4 text-green-400 text-center">
               Assine nossa Newsletter
             </h4>
-            <p className="text-gray-300 mb-4">
+            <p className="text-gray-300 mb-4 text-center">
               Receba as últimas novidades sobre energia renovável e ofertas
               exclusivas.
             </p>
@@ -162,7 +187,8 @@ export default function Footer() {
         {/* Direitos Autorais e Links Legais */}
         <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} Tlhavika — Todos os direitos reservados.
+            © {new Date().getFullYear()} Tlhavika — Todos os direitos
+            reservados.
           </p>
           <div className="flex space-x-4">
             <Link
