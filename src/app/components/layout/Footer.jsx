@@ -6,6 +6,7 @@ import {
   FaLinkedin,
   FaYoutube,
   FaMapMarkerAlt,
+  FaTiktok,
 } from "react-icons/fa";
 
 export default function Footer() {
@@ -25,10 +26,16 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.facebook.com/share/16QDLxBFn8/"
                 className="text-gray-300 hover:text-green-400 transition-colors"
               >
                 <FaFacebook className="h-6 w-6" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@tlhavika.solar?_t=ZM-8z5CbRdpB8n&_r=1"
+                className="text-gray-300 hover:text-green-400 transition-colors"
+              >
+                <FaTiktok className="h-6 w-6" />
               </a>
               <a
                 href="#"
@@ -37,7 +44,7 @@ export default function Footer() {
                 <FaTwitter className="h-6 w-6" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/tlhavika_solar?igsh=Y3o0eWowd3NwZmU="
                 className="text-gray-300 hover:text-green-400 transition-colors"
               >
                 <FaInstagram className="h-6 w-6" />

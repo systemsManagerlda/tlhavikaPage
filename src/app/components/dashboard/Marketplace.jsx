@@ -11,15 +11,24 @@ export default function Marketplace() {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
-    // Simular chamada à API
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        // Na prática, você faria uma chamada para sua API WooCommerce
-        const response = await fetch('/api/products');
-        const data = await response.json();
-        setProducts(data.products);
-        setCategories(data.categories);
+        const response = await fetch('/api/produtos');
+        if (response.ok) {
+          const productsData = await response.json();
+          setProducts(productsData);
+          
+          // Extrair categorias únicas dos produtos
+          const uniqueCategories = [...new Set(productsData
+            .filter(product => product.category)
+            .map(product => product.category)
+          )];
+          
+          setCategories(uniqueCategories);
+        } else {
+          console.error('Erro ao carregar produtos');
+        }
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -32,10 +41,10 @@ export default function Marketplace() {
 
   const addToCart = (product) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === product.id);
+      const existingItem = prevCart.find(item => item._id === product._id);
       if (existingItem) {
         return prevCart.map(item =>
-          item.id === product.id 
+          item._id === product._id 
             ? { ...item, quantity: item.quantity + 1 } 
             : item
         );
@@ -45,7 +54,7 @@ export default function Marketplace() {
   };
 
   const removeFromCart = (productId) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== productId));
+    setCart(prevCart => prevCart.filter(item => item._id !== productId));
   };
 
   const updateQuantity = (productId, newQuantity) => {
@@ -53,7 +62,7 @@ export default function Marketplace() {
     
     setCart(prevCart =>
       prevCart.map(item =>
-        item.id === productId 
+        item._id === productId 
           ? { ...item, quantity: newQuantity } 
           : item
       )
@@ -63,6 +72,62 @@ export default function Marketplace() {
   const filteredProducts = selectedCategory === 'all' 
     ? products 
     : products.filter(product => product.category === selectedCategory);
+
+  // Função para obter a primeira imagem da galeria
+  const getProductImage = (product) => {
+    if (product.gallery && product.gallery.length > 0) {
+      return product.gallery[0];
+    }
+    return '/placeholder-image.jpg'; // Imagem padrão
+  };
+
+  // Função para formatar a categoria para exibição
+  const formatCategoryName = (categorySlug) => {
+    const categoryMap = {
+      'painel_fotovoltaico': 'Painéis Fotovoltaicos',
+      'painel_termico': 'Painéis Térmicos',
+      'inversores': 'Inversores',
+      'microinversores': 'Microinversores',
+      'controladores': 'Controladores',
+      'kits_solares': 'Kits Solares',
+      'baterias_litio': 'Baterias Lítio',
+      'baterias_gel': 'Baterias Gel',
+      'banco_baterias': 'Banco de Baterias',
+      'ups': 'UPS/No-Break',
+      'geradores_hibridos': 'Geradores Híbridos',
+      'bomba_submersivel': 'Bombas Submersíveis',
+      'bomba_superficie': 'Bombas de Superfície',
+      'bomba_centrifuga': 'Bombas Centrífugas',
+      'bomba_diafragma': 'Bombas de Diafragma',
+      'controladores_bomba': 'Controladores de Bombas',
+      'kits_bombeamento': 'Kits de Bombeamento',
+      'irrigacao_gotejamento': 'Irrigação por Gotejamento',
+      'irrigacao_aspersao': 'Irrigação por Aspersão',
+      'reservatorios': 'Reservatórios',
+      'filtros': 'Filtros',
+      'estruturas_montagem': 'Estruturas',
+      'trackers': 'Trackers Solares',
+      'cabos_solares': 'Cabos Solares',
+      'conectores_mc4': 'Conectores MC4',
+      'disjuntores': 'Disjuntores',
+      'string_box': 'String Box',
+      'caixa_controle': 'Caixas de Controle',
+      'protecao_surtos': 'Proteção contra Surtos',
+      'monitoramento_iot': 'Monitoramento IoT',
+      'softwares': 'Softwares',
+      'sensores': 'Sensores',
+      'medidores': 'Medidores',
+      'controladores_remotos': 'Controladores Remotos',
+      'iluminacao_solar': 'Iluminação Solar',
+      'carregadores_solares': 'Carregadores Solares',
+      'kits_emergencia': 'Kits de Emergência',
+      'geladeiras_solares': 'Geladeiras Solares',
+      'bombas_calor': 'Bombas de Calor',
+      'aquecedores_solares': 'Aquecedores Solares'
+    };
+
+    return categoryMap[categorySlug] || categorySlug;
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -79,8 +144,8 @@ export default function Marketplace() {
           >
             <option value="all">Todas as Categorias</option>
             {categories.map(category => (
-              <option key={category.slug} value={category.slug}>
-                {category.name}
+              <option key={category} value={category}>
+                {formatCategoryName(category)}
               </option>
             ))}
           </select>
@@ -96,8 +161,12 @@ export default function Marketplace() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map(product => (
               <ProductCard
-                key={product.id}
-                product={product}
+                key={product._id}
+                product={{
+                  ...product,
+                  image: getProductImage(product),
+                  category: formatCategoryName(product.category)
+                }}
                 onAddToCart={() => addToCart(product)}
               />
             ))}
@@ -105,32 +174,46 @@ export default function Marketplace() {
           
           {/* Carrinho de Compras */}
           <div className="mt-12 border-t pt-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Seu Carrinho ({cart.reduce((total, item) => total + item.quantity, 0)} itens)</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              Seu Carrinho ({cart.reduce((total, item) => total + item.quantity, 0)} itens)
+            </h3>
             
             {cart.length === 0 ? (
               <p className="text-gray-500">Seu carrinho está vazio</p>
             ) : (
               <div className="space-y-4">
                 {cart.map(item => (
-                  <div key={item.id} className="flex items-center justify-between border-b pb-4">
+                  <div key={item._id} className="flex items-center justify-between border-b pb-4">
                     <div className="flex items-center">
                       <img 
-                        src={item.image} 
+                        src={getProductImage(item)} 
                         alt={item.name}
                         className="w-16 h-16 object-cover rounded"
+                        onError={(e) => {
+                          e.target.src = '/placeholder-image.jpg';
+                        }}
                       />
                       <div className="ml-4">
                         <h4 className="font-medium">{item.name}</h4>
                         <p className="text-green-600 font-medium">
-                          {item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          {item.price?.toLocaleString('pt-MZ', { 
+                            style: 'currency', 
+                            currency: 'MZN' 
+                          }) || 'N/A'}
                         </p>
+                        {item.stock < item.quantity && (
+                          <p className="text-red-500 text-sm">
+                            Estoque insuficiente
+                          </p>
+                        )}
                       </div>
                     </div>
                     
                     <div className="flex items-center">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item._id, item.quantity - 1)}
                         className="text-gray-500 hover:text-green-600 p-1"
+                        disabled={item.quantity <= 1}
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
@@ -138,8 +221,9 @@ export default function Marketplace() {
                       </button>
                       <span className="mx-2 w-8 text-center">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item._id, item.quantity + 1)}
                         className="text-gray-500 hover:text-green-600 p-1"
+                        disabled={item.quantity >= item.stock}
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -147,7 +231,7 @@ export default function Marketplace() {
                       </button>
                       
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item._id)}
                         className="ml-4 text-red-500 hover:text-red-700"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,15 +246,19 @@ export default function Marketplace() {
                   <p className="text-lg font-medium">Total:</p>
                   <p className="text-xl font-bold text-green-600">
                     {cart
-                      .reduce((total, item) => total + (item.price * item.quantity), 0)
-                      .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                      .reduce((total, item) => total + ((item.price || 0) * item.quantity), 0)
+                      .toLocaleString('pt-MZ', { 
+                        style: 'currency', 
+                        currency: 'MZN' 
+                      })
                     }
                   </p>
                 </div>
                 
                 <div className="flex justify-end pt-2">
                   <button
-                    className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
+                    className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={cart.some(item => item.quantity > item.stock)}
                   >
                     Finalizar Compra
                   </button>
